@@ -1,4 +1,3 @@
-package src;
 /*
  * Copyright &#169; 2004, 2010 Oracle and/or its affiliates. All  Rights Reserved.
  *  
@@ -37,23 +36,33 @@ package src;
  * maintenance of any nuclear facility.
  */
 
-import java.rmi.registry.LocateRegistry;
+
 import java.rmi.registry.Registry;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+	
+public class Server implements Hello {
+	
+    public Server() {}
 
-public class Client {
-
-    private Client() {}
-
-    public static void main(String[] args) {
-
-	String host = (args.length < 1) ? null : args[0];
+    public String sayHello() {
+	return "Hello, world!";
+    }
+	
+    public static void main(String args[]) {
+	
 	try {
-	    Registry registry = LocateRegistry.getRegistry(host);
-	    Hello stub = (Hello) registry.lookup("Hello");
-	    String response = stub.sayHello();
-	    System.out.println("response: " + response);
+	    Server obj = new Server();
+	    Hello stub = (Hello) UnicastRemoteObject.exportObject(obj, 0);
+
+	    // Bind the remote object's stub in the registry
+	    Registry registry = LocateRegistry.getRegistry();
+	    registry.rebind("Hello", stub);
+
+	    System.err.println("Server ready");
 	} catch (Exception e) {
-	    System.err.println("Client exception: " + e.toString());
+	    System.err.println("Server exception: " + e.toString());
 	    e.printStackTrace();
 	}
     }
